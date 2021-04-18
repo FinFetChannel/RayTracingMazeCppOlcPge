@@ -53,7 +53,7 @@ Complexity arises from the different branches on block features wich nay be comb
 
 ### Variables initialization
 
-Several variables have to be initialized related to: maps, player's position and orientation, light position, 
+Several variables have to be initialized related to: maps, player's position and orientation, light position and additional support variables.
 
 <details>
   <summary>Imports, map and initialization:</summary>
@@ -63,20 +63,20 @@ Several variables have to be initialized related to: maps, player's position and
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
-int Wsize; int level;
+int Wsize; int level; // map size, current level
 int Wmap[100][100]; int Rmap[100][100]; float Hmap[100][100]; int Tmap[100][100]; int Smap[100][100];
-float Rc[100][100]; float Gc[100][100]; float Bc[100][100];
+float Rc[100][100]; float Gc[100][100]; float Bc[100][100]; // RGB maps
 
 float playerx = 1.5; float playery = 1.5;
 int exitx = 1; int exity = 1;
 float lx; float ly;
-float playerH = 1.5; float playerV = -.1;
-float nx; float ny; float nz; float dot;
+float playerH = 1.5; float playerV = -.1; // player orientation
+float nx; float ny; float nz; float dot; // normal vector
 
-float mousex; float mousey;
+float mousex; float mousey; // mouse position
 const int screenwidth = 224;
-int Spixel = 4;
-const float mod = screenwidth/60;
+int Spixel = 4; // pixel scaling on screen
+const float mod = screenwidth/60; // pixel scaler in field of view (60°)
 int sx; int sy; float tr[6][6]; // random texture
 float tb[6][4] = {{.95, .99, .97, .78}, // Brick texture
                   {.97, .95, .96, .81},
@@ -89,3 +89,35 @@ float tb[6][4] = {{.95, .99, .97, .78}, // Brick texture
 ```
 
 </details>
+
+
+### Main() and levels
+
+The main function is responsible for the level management, with a for loop that increases the size of the map at each turn. The player can only advance to the next level if its last position is equal to the last exit position. The light position is always set to the middle of the level.
+
+<details>
+  <summary>Imports, map and initialization:</summary>
+
+```c++
+int main()
+{
+	for (int x = 0; x < 10; x++)
+    {
+        if (int(playerx) == exitx & int(playery) == exity)
+        {
+            level = x + 1;
+            Wsize = level*10;
+            playerx = 1.5; playery = 1.5;
+            lx = Wsize/2; ly = Wsize/2;
+            Example demo;
+            if (demo.Construct(screenwidth, int(screenwidth*0.75), Spixel, Spixel))
+                demo.Start();
+        }
+
+    }
+	return 0;
+}
+```
+
+</details>
+
