@@ -9,7 +9,7 @@ Simple ray tracing game in C++, originally developed in [Python](https://github.
 The basic approach is to trace rays of light in the reverse direction, starting from the camera and interacting with the environment, with three basic types of rays:
 
 * Vision rays - Initial ray that shoots from the camera and returns the coordinates where it has hit something
-* Reflection rays - Secondary rays that start where the vision ray has hit something and goes in the direction of the light
+* Shadow rays - Secondary rays that start where the vision ray has hit something and goes in the direction of the light
 * Reflection rays - Secondary rays cast when a vision ray hits a reflective surface, the new direction is the reflection of vision ray in relation to the normal vector of the surface, can have several bounces (reflections inside reflections)
 
 ### Maps
@@ -123,10 +123,10 @@ int main()
 
 ### Setting up a level
 
-The setup of a level is the process of generating a map of a given size. Firstly, a map is generated with blocks in random locations and random features, except on the edges of the map, where there are always full-height prismatic walls. After that a random walker tries to reach the opposite side of the map, in the process some blocks are removed to give way.
+The setup of a level is the process of generating a map of a given size. Firstly, a map is generated with blocks in random locations and random features, except on the edges of the map, where there are always full-height prismatic walls. After that, a random walker tries to reach the opposite side of the map, in the process some blocks are removed to give way. When it reaches the other side, the location is marked as the exit of the level.
 
 <details>
-  <summary>Imports, map and initialization:</summary>
+  <summary>Level setup</summary>
 
 ```c++
 bool OnUserCreate() override
@@ -187,13 +187,64 @@ bool OnUserCreate() override
 
 </details>
 
+### User inputs and movement
 
+Every frame the player's position and orientation are updated according to keyboard and mouse inputs, but the player can only move if the intended new position is not a wall.
 
 <details>
-  <summary>Imports, map and initialization:</summary>
+  <summary>Input and movement</summary>
 
 ```c++
+bool OnUserUpdate(float fElapsedTime) override
+{
+	// user inputs
+        if (int(mousex) != float(GetMouseX())) // turn sideways
+            playerH += 12*(float(GetMouseX()) - mousex)/ScreenWidth();
 
+        if (int(mousey) != float(GetMouseY())) // turn up and down
+            playerV += 3*(float(GetMouseY()) - mousey)/ScreenHeight();
+
+        if (playerV > 0.5)playerV = 0.5; // don't break your neck!
+        if (playerV < -0.5)playerV = -0.5;
+
+        mousex = float(GetMouseX()); mousey = float(GetMouseY());
+
+        if (GetKey(olc::Key::Q).bHeld) // turn left
+            playerH += -1* fElapsedTime;
+
+        if (GetKey(olc::Key::E).bHeld) // turn right
+            playerH += 1* fElapsedTime;
+
+        if (GetKey(olc::Key::R).bHeld) // turn up
+            playerV += 1* fElapsedTime;
+
+        if (GetKey(olc::Key::F).bHeld) // turn down
+            playerV += -1* fElapsedTime;
+
+        if (GetKey(olc::Key::ESCAPE).bHeld) // quit
+            return 0;
+
+        float px = playerx; float py = playery;
+        if (GetKey(olc::Key::W).bHeld) // Forwards
+        {
+            px += cos(playerH)*2.f * fElapsedTime; py += sin(playerH)*2.f * fElapsedTime;
+        }
+        if (GetKey(olc::Key::S).bHeld) // Backwards
+        {
+            px += -cos(playerH)*2.f * fElapsedTime; py += -sin(playerH)*2.f * fElapsedTime;
+        }
+        if (GetKey(olc::Key::A).bHeld) // Leftwards
+        {
+            px += sin(playerH)*2.f * fElapsedTime; py += -cos(playerH)*2.f * fElapsedTime;
+        }
+        if (GetKey(olc::Key::D).bHeld) // Rightwards
+        {
+            px += -sin(playerH)*2.f * fElapsedTime; py += cos(playerH)*2.f * fElapsedTime;
+        }
+        if (!Wmap[int(px)][int(py)]){ // only moves if not wall
+            playerx = px; playery = py;
+        }
+...
 ```
 
 </details>
