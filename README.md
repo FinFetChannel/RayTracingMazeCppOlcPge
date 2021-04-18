@@ -123,7 +123,7 @@ int main()
 
 ### Setting up a level
 
-The setup of a level is the process of generating a map of a given size. Firstly, a map is generated with blocks in random locations and random features, except on the edges of the map, where there are always full-height prismatic walls. After that, a random walker tries to reach the opposite side of the map, in the process some blocks are removed to give way. When it reaches the other side, the location is marked as the exit of the level.
+The setup of a level is the process of generating a map of a given size. Firstly, a map is generated with blocks in random locations and random features, except on the edges of the map, where there are always full-height prismatic walls. After that, a random walker tries to reach the opposite side of the map, in the process some blocks are removed to give way. When it reaches the other side, the location is marked as the exit of the level. Also, a random texture is generated for every new level.
 
 <details>
   <summary>Level setup</summary>
@@ -178,10 +178,10 @@ bool OnUserCreate() override
                     cont += 1; // increase counter if cannot move
             }
         }
-        for (int x = 0; x < 6; x++)
-			for (int y = 0; y < 6; y++)
-                tr[x][y] = 0.5 + 0.4*(((float) rand()) / (float) RAND_MAX);
-		return true;
+        for (int x = 0; x < 6; x++) // generate a random texture
+		for (int y = 0; y < 6; y++)
+                	tr[x][y] = 0.5 + 0.4*(((float) rand()) / (float) RAND_MAX);
+	return true;
 	}
 ```
 
@@ -251,7 +251,7 @@ bool OnUserUpdate(float fElapsedTime) override
 
 ### Casting rays
 
-Rays are cast for each pixel, starting at the players current position with directions spaced uniformly in the pixel grid for a field of view of 60° horizontally and 45° vertically. When a ray hits something a few checks need to be made for height, shape, reflectivity, color and texture.
+Rays are cast for each pixel, starting at the players current position with directions spaced uniformly in the pixel grid for a field of view of 60° horizontally and 45° vertically. When a ray hits something a few checks need to be made for height, shape, reflectivity, color and texture. After the base color of the pixel is defined, a new ray is cast from the last known position in the direction of the light to check if there is something directly blocking the light. Shadows are not affected by reflections for simplification.
 
 
 <details>
@@ -303,11 +303,44 @@ for (int x = 0; x < ScreenWidth(); x++)
 
 #### First case: Opaque walls with different heights
 
+The simplest case is when a ray hits a prismatic wall, that is, the checks for spheres and reflective blocks have failed. Then a base color for the pixel is retrieved and the texture is checked.
+
 <details>
   <summary>Imports, map and initialization:</summary>
 
 ```c++
-
+if (Wmap[int(xx)][int(yy)]) // walls
+{
+	if (Hmap[int(xx)][int(yy)] >= 1-zz)
+	{
+		if (Smap[int(xx)][int(yy)])// Spheres
+		else
+		{
+			if (Rmap[int(xx)][int(yy)]) // wall reflections
+			else
+			{
+				r = Rc[int(xx)][int(yy)]; g = Gc[int(xx)][int(yy)]; b = Bc[int(xx)][int(yy)]; // opaque surface
+				if (Tmap[int(xx)][int(yy)] != 0) // textured surface
+				{
+					if (yy - int(yy) < 0.05 || yy - int(yy) > 0.95)
+					sx = int((xx*3 - int(3*xx))*4);
+				else
+					sx = int((yy*3 - int(3*yy))*4);
+				if (xx - int(xx) < 0.95 & xx - int(xx) > 0.05 & yy - int(yy) < 0.95 & yy - int(yy) > 0.05)
+					sy = int((xx*5 - int(5*xx))*6);
+				else
+					sy = int((zz*5 - int(5*zz))*6);
+				if (Tmap[int(xx)][int(yy)] == 2) // random texture
+				{
+					r = r*tr[sy][sx]; g = g*tr[sy][sx]; b = b*tr[sy][sx];
+				}
+				else // brick texture
+				{
+					r = r*tb[sy][sx]; g = g*tb[sy][sx]; b = b*tb[sy][sx];
+				}
+			}
+		break;
+}
 ```
 
 </details>
