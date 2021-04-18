@@ -55,7 +55,11 @@ Complexity arises from the different branches on block features wich nay be comb
 
 Several variables have to be initialized related to: maps, player's position and orientation, light position, 
 
-´´´cpp
+<details>
+  <summary>Imports, map and initialization:</summary>
+
+```c++
+
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
 
@@ -81,4 +85,7 @@ float tb[6][4] = {{.95, .99, .97, .78}, // Brick texture
                   {.99, .78, .97, .95},
                   {.81, .78, .82, .82}
                 };
-´´´
+
+```
+
+</details>
