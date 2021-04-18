@@ -93,10 +93,10 @@ float tb[6][4] = {{.95, .99, .97, .78}, // Brick texture
 
 ### Main() and levels
 
-The main function is responsible for the level management, with a for loop that increases the size of the map at each turn. The player can only advance to the next level if its last position is equal to the last exit position. The light position is always set to the middle of the level.
+The main function is responsible for the level management, with a for loop that increases the size of the map at each turn. The player can only advance to the next level if its last position is equal to the last exit position. The light position is always set to the middle of the level and the player's position is reset.
 
 <details>
-  <summary>Imports, map and initialization:</summary>
+  <summary>Main() and levels</summary>
 
 ```c++
 int main()
@@ -121,3 +121,90 @@ int main()
 
 </details>
 
+### Setting up a level
+
+The setup of a level is the process of generating a map of a given size. Firstly, a map is generated with blocks in random locations and random features, except on the edges of the map, where there are always full-height prismatic walls. After that a random walker tries to reach the opposite side of the map, in the process some blocks are removed to give way.
+
+<details>
+  <summary>Imports, map and initialization:</summary>
+
+```c++
+bool OnUserCreate() override
+	{
+	srand (time(NULL));
+	for (int x = 0; x < Wsize; x++)
+		for (int y = 0; y < Wsize; y++)
+           	{
+                	Rmap[x][y] = int(((float) rand()) / (float) RAND_MAX + 0.2); // Reflective?
+			
+                	if (int(((float) rand()) / (float) RAND_MAX + 0.2)) // Textured?
+                   		Tmap[x][y] = rand()%2 + 1;
+                	else
+                    		Tmap[x][y] = 0;
+				
+               		Rc[x][y] = rand()%255; Gc[x][y] = rand()%255; Bc[x][y] = rand()%255; // RGB
+			
+                	if(x == 0 || y == 0 || x == Wsize-1 || y == Wsize-1){
+                    		Wmap[x][y] = 1; Hmap[x][y] = 1; Smap[x][y] == 0;}
+                	else
+			{
+                    		Wmap[x][y] = int(((float) rand()) / (float) RAND_MAX + 0.5);
+                    		Hmap[x][y] = 0.2 + 0.6*(((float) rand()) / (float) RAND_MAX );
+                    		Smap[x][y] = int(((float) rand()) / (float) RAND_MAX + 0.2);
+                	}
+            	}
+	
+        Wmap[int(playerx)][int(playery)] = 0; // Remove wall fron starting position
+	
+        int x = int(playerx); int y = int(playery);  int cont = 0;
+	
+        while (1){
+            int testx = x; int testy = y;
+	    
+            if (((float) rand()) / (float) RAND_MAX > 0.5)
+            	testx += (rand()%2)*2 - 1;
+            else
+            	testy += (rand()%2)*2 - 1;
+		
+            if (testx > 0 & testx < Wsize -1 & testy > 0 & testy < Wsize -1){
+                if (Wmap[testx][testy] == 0 || cont > 5){ // move to new position if not wall or counter reached limit
+                    cont = 0; x = testx; y = testy; Wmap[x][y] = 0;
+                    if (x == Wsize-2){
+                        exitx = x; exity = y; // set exit of the maze
+                        break;
+                    }
+                }
+                else
+                    cont += 1; // increase counter if cannot move
+            }
+        }
+        for (int x = 0; x < 6; x++)
+			for (int y = 0; y < 6; y++)
+                tr[x][y] = 0.5 + 0.4*(((float) rand()) / (float) RAND_MAX);
+		return true;
+	}
+```
+
+</details>
+
+
+
+<details>
+  <summary>Imports, map and initialization:</summary>
+
+```c++
+
+```
+
+</details>
+
+
+
+<details>
+  <summary>Imports, map and initialization:</summary>
+
+```c++
+
+```
+
+</details>
