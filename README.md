@@ -30,6 +30,14 @@ The code is a bit messy, following the basic structure:
 
 * Variables initialization
 * Level loop
-    * Initialize level - OnUserCreate()
-    * Game loop - OnUserUpdate()
-        * Check inputs  
+   * Initialize level - OnUserCreate()
+   * Game loop - OnUserUpdate()
+      * Check inputs
+      * Pixel loop
+         * Initialize Vision ray
+         * Vision Ray loop
+            * Increment until reaching some surface
+            * If hit reflective suface, reflect ray direction, else break out
+         * Initialize Shadow ray
+         * Shadow Ray loop
+            * Increment until reaching light or blocked by something
