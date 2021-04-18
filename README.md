@@ -1,6 +1,6 @@
 # RayTracingMazeCppOLC
 
-Simple ray tracing game in C++, originally developed in [Python](https://github.com/FinFetChannel/pytracingMaze). As you may have guessed, things started to get a bit heavy for Python and my poor optimization skills, still, developing the proof of concept with Python was worth it.
+Simple ray tracing game in C++, originally developed in [Python](https://github.com/FinFetChannel/pytracingMaze), which in turn was based on my [ray casting project](https://github.com/FinFetChannel/RayCastingPythonMaze). As you may have guessed, things started to get a bit heavy for Python and my poor optimization skills, still, developing the proof of concept with Python was worth it as i don't have much experience in C++.
 
 ## Intro
 
@@ -249,6 +249,68 @@ bool OnUserUpdate(float fElapsedTime) override
 
 </details>
 
+### Casting rays
+
+Rays are cast for each pixel, starting at the players current position with directions spaced uniformly in the pixel grid for a field of view of 60° horizontally and 45° vertically. When a ray hits something a few checks need to be made for height, shape, reflectivity, color and texture.
+
+
+<details>
+  <summary>Generic rays</summary>
+
+```c++
+...
+// draw pixel after pixel
+for (int x = 0; x < ScreenWidth(); x++)
+	for (int y = 0; y < ScreenHeight(); y++)
+       	{
+		float xx = playerx;
+		float yy = playery;
+		float zz = 0.5;
+		float Hangle = playerH + x*0.017453/mod - 0.523598;
+		float Vangle = playerV + y*0.017453/mod - 0.393699;
+		float dx = cos(Hangle)*0.04/mod;
+		float dy = sin(Hangle)*0.04/mod;
+		float dz = sin(Vangle)*0.04/mod;
+		float shade = 1;
+		int r = 255; int g = 255; int b = 255;
+		float rr; float rg; float rb;
+
+                while(1) // Vision and reflection rays
+                {
+			xx += dx;
+                    	yy += dy;
+                    	zz += dz;
+
+                    	if (zz < 0) // ceiling
+                       		define ceiling color here (light source too
+                    	if (zz > 1) // floor
+				define floor color here
+			if (Wmap[int(xx)][int(yy)]) // walls
+				check wall height, shape, reflectivity, color and textures
+		}
+		
+		dx = 0.04*(lx-xx)/dl; dy = 0.04*(ly-yy)/dl; dz = 0.04*(0-zz)/dl; // light direction
+                while(1)
+                {
+                	xx += dx; yy += dy; zz += dz;
+			check if ray is blocked (considering wall height and shape) or if has reached the ceiling
+		}
+	}
+				
+```
+
+</details>
+
+#### First case: Opaque walls with different heights
+
+<details>
+  <summary>Imports, map and initialization:</summary>
+
+```c++
+
+```
+
+</details>
 
 
 <details>
