@@ -24,6 +24,10 @@ The player starts on one side of the map and has the objective of finding a blue
 
 Basic inputs are similar to FPS games, with WASD for movement and mouse for orientation (optionally QERF), the esc key is reserved for quitters.
 
+### Engine
+
+The game is built on top of the [PixelGameEngine](https://github.com/OneLoneCoder/olcPixelGameEngine) from [javidx9](https://www.youtube.com/channel/UC-yuWVUplUJZvieEligKBkA).
+
 ## Code
 
 The code is a bit messy, following the basic structure:
@@ -33,6 +37,7 @@ The code is a bit messy, following the basic structure:
    * Initialize level - OnUserCreate()
    * Game loop - OnUserUpdate()
       * Check inputs
+      * Movement
       * Pixel loop
          * Initialize Vision ray
          * Vision Ray loop
@@ -41,3 +46,39 @@ The code is a bit messy, following the basic structure:
          * Initialize Shadow ray
          * Shadow Ray loop
             * Increment until reaching light or blocked by something
+         * Draw pixel
+    * Check if reached end of level
+
+Complexity arises from the different branches on block features wich nay be combined (reflectivity, geometry, texture).
+
+### Variables initialization
+
+Several variables have to be initialized related to: maps, player's position and orientation, light position, 
+
+´´´cpp
+#define OLC_PGE_APPLICATION
+#include "olcPixelGameEngine.h"
+
+int Wsize; int level;
+int Wmap[100][100]; int Rmap[100][100]; float Hmap[100][100]; int Tmap[100][100]; int Smap[100][100];
+float Rc[100][100]; float Gc[100][100]; float Bc[100][100];
+
+float playerx = 1.5; float playery = 1.5;
+int exitx = 1; int exity = 1;
+float lx; float ly;
+float playerH = 1.5; float playerV = -.1;
+float nx; float ny; float nz; float dot;
+
+float mousex; float mousey;
+const int screenwidth = 224;
+int Spixel = 4;
+const float mod = screenwidth/60;
+int sx; int sy; float tr[6][6]; // random texture
+float tb[6][4] = {{.95, .99, .97, .78}, // Brick texture
+                  {.97, .95, .96, .81},
+                  {.82, .81, .83, .78},
+                  {.93, .83, .98, .96},
+                  {.99, .78, .97, .95},
+                  {.81, .78, .82, .82}
+                };
+´´´
