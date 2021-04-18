@@ -1,12 +1,12 @@
 # RayTracingMazeCpp
 
-Simple ray tracing game in C++, originally developed in [Python](https://github.com/FinFetChannel/pytracingMaze).
+Simple ray tracing game in C++, originally developed in [Python](https://github.com/FinFetChannel/pytracingMaze). As you may imagine, things started to get a bit heavy for Python and my poor optimization skills.
 
-## Basics
+## Intro
 
 ### Rays
 
-The basic approach is to trace rays of light in the reverse direction, starting from the camera and interacting with the environment, with three basic tipes of rays:
+The basic approach is to trace rays of light in the reverse direction, starting from the camera and interacting with the environment, with three basic types of rays:
 
 * Vision rays - Initial ray that shoots from the camera and returns the coordinates where it has hit something
 * Reflection rays - Secondary rays that start where the vision ray has hit something and goes in the direction of the light
@@ -18,4 +18,7 @@ Maps are defined by grids, with different maps for different features: wall posi
 
 ### Game logic
 
-The player starts on one side of the map and has the objective of finding a blue floor patch on the opposite side of the map. At each level the size of map gets bigger.
+The player starts on one side of the map and has the objective of finding a blue floor patch on the opposite side of the map. At each level the size of map gets bigger, with a total of.
+
+### Inputs
+Basic inputs are similar to FPS games, with WASD for movement and mouse for orientation (optionally QERF), the esc key is reserved for quitters.
