@@ -30,6 +30,6 @@ The code is a bit messy, following the basic structure:
 
 * Variables initialization
 * Level loop
-  * Initialize level - OnUserCreate()
-  * Game loop - OnUserUpdate()
-    *Check inputs  
+    * Initialize level - OnUserCreate()
+    * Game loop - OnUserUpdate()
+        * Check inputs  
