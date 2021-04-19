@@ -397,53 +397,57 @@ Spheres allow for rays to pass through the corners of the walls when the distanc
   <summary>Spheres</summary>
 
 ```c++
-			    if (Smap[int(xx)][int(yy)])// Spheres
-                            {
-                                if (pow(xx-int(xx)-0.5,2)+pow(yy-int(yy)-0.5,2)+pow(zz-int(zz)-0.5,2) < 0.25)
-                                {
-                                    if (Rmap[int(xx)][int(yy)]) // spherical mirrors
-                                    {
-                                        if (shade == 1){
-                                            rr = Rc[int(xx)][int(yy)]; rg = Gc[int(xx)][int(yy)]; rb = Bc[int(xx)][int(yy)];} // tinted mirrors
-                                        else{
-                                            rr = 0.5*(rr + Rc[int(xx)][int(yy)]); rg = 0.5*(rg + Gc[int(xx)][int(yy)]); rb = 0.5*(rb + Bc[int(xx)][int(yy)]);}
-                                        shade = shade*0.7;
-                                        if (shade < 0.1){
-                                            r = 0; g = 0; b = 0;
-                                            break;
-                                        }
-                                        if (abs(Hmap[int(xx)][int(yy)] - 1+zz) <= abs(dz)) // horizontal surface
-                                            dz = -dz;
-                                        else{
-                                            nx = (xx-int(xx)-0.5)/0.5; ny = (yy-int(yy)-0.5)/0.5; nz =(zz-0.5)/0.5;
-                                            dot = 2*(dx*nx + dy*ny + dz*nz); // dR = -dI + 2*n*(dI·n)
-                                            dx = (dx - nx*dot)*1.2; dy = (dy - ny*dot)*1.2; dz = (dz - nz*dot)*1.2;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        r = Rc[int(xx)][int(yy)]; g = Gc[int(xx)][int(yy)]; b = Bc[int(xx)][int(yy)];
-                                        if (Tmap[int(xx)][int(yy)] != 0) // textures on spheres (a bit wonky), same code as before repeated here
-                                        {
-                                            if (yy - int(yy) < 0.05 || yy - int(yy) > 0.95)
-                                                sx = int((xx*3 - int(3*xx))*4);
-                                            else
-                                                sx = int((yy*3 - int(3*yy))*4);
-                                            if (xx - int(xx) < 0.95 & xx - int(xx) > 0.05 & yy - int(yy) < 0.95 & yy - int(yy) > 0.05)
-                                                sy = int((xx*5 - int(5*xx))*6);
-                                            else
-                                                sy = int((zz*5 - int(5*zz))*6);
-                                            if (Tmap[int(xx)][int(yy)] == 2){
-                                                r = r*tr[sy][sx]; g = g*tr[sy][sx]; b = b*tr[sy][sx];
-                                            }
-                                            else{
-                                                r = r*tb[sy][sx]; g = g*tb[sy][sx]; b = b*tb[sy][sx];
-                                            }
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
+if (Smap[int(xx)][int(yy)])// Spheres
+{
+	if (pow(xx-int(xx)-0.5,2)+pow(yy-int(yy)-0.5,2)+pow(zz-int(zz)-0.5,2) < 0.25)
+	{
+		if (Rmap[int(xx)][int(yy)]) // spherical mirrors
+		{
+			if (shade == 1){
+				rr = Rc[int(xx)][int(yy)]; rg = Gc[int(xx)][int(yy)]; rb = Bc[int(xx)][int(yy)];} // tinted mirrors
+			else{
+				rr = 0.5*(rr + Rc[int(xx)][int(yy)]); rg = 0.5*(rg + Gc[int(xx)][int(yy)]); rb = 0.5*(rb + Bc[int(xx)][int(yy)]);}
+			shade = shade*0.7;
+			if (shade < 0.1)
+			{
+				r = 0; g = 0; b = 0;
+				break;
+			}
+			if (abs(Hmap[int(xx)][int(yy)] - 1+zz) <= abs(dz)) // horizontal surface
+				dz = -dz;
+			else
+			{
+				nx = (xx-int(xx)-0.5)/0.5; ny = (yy-int(yy)-0.5)/0.5; nz =(zz-0.5)/0.5;
+				dot = 2*(dx*nx + dy*ny + dz*nz); // dR = -dI + 2*n*(dI·n)
+				dx = (dx - nx*dot)*1.2; dy = (dy - ny*dot)*1.2; dz = (dz - nz*dot)*1.2;
+			}
+		}
+		else // spherical opaque
+		{
+			r = Rc[int(xx)][int(yy)]; g = Gc[int(xx)][int(yy)]; b = Bc[int(xx)][int(yy)];
+			if (Tmap[int(xx)][int(yy)] != 0) // textures on spheres (a bit wonky), same code as before repeated here
+			{
+				if (yy - int(yy) < 0.05 || yy - int(yy) > 0.95)
+					sx = int((xx*3 - int(3*xx))*4);
+				else
+					sx = int((yy*3 - int(3*yy))*4);
+				if (xx - int(xx) < 0.95 & xx - int(xx) > 0.05 & yy - int(yy) < 0.95 & yy - int(yy) > 0.05)
+					sy = int((xx*5 - int(5*xx))*6);
+				else
+					sy = int((zz*5 - int(5*zz))*6);
+				if (Tmap[int(xx)][int(yy)] == 2)
+				{
+					r = r*tr[sy][sx]; g = g*tr[sy][sx]; b = b*tr[sy][sx];
+				}
+				else
+				{
+					r = r*tb[sy][sx]; g = g*tb[sy][sx]; b = b*tb[sy][sx];
+				}
+			}
+			break;
+		}
+	}
+}
 ```
 
 </details>
@@ -452,28 +456,28 @@ Spheres allow for rays to pass through the corners of the walls when the distanc
 Before we start the Shadow ray loop, we check if the the shading was affected by reflections to mix the color of the pixel with the color of the mirror. We need to calculate the distance to the light source and new increments in its direction. The shading occurs incrementally, for softer edges, depending on the amount of material that is blocking the light. When a threshhold is reached, the ray is interrupted.
 
 <details>
-  <summary>Imports, map and initialization:</summary>
+  <summary>Shading</summary>
 
 ```c++
-                float dl = sqrt(pow ((xx-lx),2) + pow((yy-ly),2) + pow((0-zz),2) );
-                if (shade < 1){ // tinted mirrors application
-                    //r = 0.5*(rr + r); rg = 0.5*(rg + g); rb = 0.5*(rb + b); // colorful black tiles
-                    r = sqrt(rr * r); rg = sqrt(rg * g); rb = sqrt(rb * b);
-                }
-                if (zz>0) // shade ray for everything thats under the ceiling level
-                {
-                    dx = 0.04*(lx-xx)/dl; dy = 0.04*(ly-yy)/dl; dz = 0.04*(0-zz)/dl; // light direction
-                    while(1)
-                    {
-                        xx += dx; yy += dy; zz += dz;
-                        if (Wmap[int(xx)][int(yy)] & Hmap[int(xx)][int(yy)] >= 1-zz)
-                            if (!Smap[int(xx)][int(yy)] || (Smap[int(xx)][int(yy)] & (pow(xx-int(xx)-0.5,2)+pow(yy-int(yy)-0.5,2)+pow(zz-int(zz)-0.5,2) < 0.25)))
-                                shade = shade*0.9;
-                        if (zz<0 || shade<0.4)
-                            break;
-                    }
-                }
-                shade = sqrt(shade*(0.4 + 0.6)/(dl/2+0.1));
+float dl = sqrt(pow ((xx-lx),2) + pow((yy-ly),2) + pow((0-zz),2) );
+if (shade < 1) // tinted mirrors application
+{
+	r = sqrt(rr * r); rg = sqrt(rg * g); rb = sqrt(rb * b);
+}
+if (zz>0) // shade ray for everything thats under the ceiling level
+{
+	dx = 0.04*(lx-xx)/dl; dy = 0.04*(ly-yy)/dl; dz = 0.04*(0-zz)/dl; // light direction
+	while(1)
+	{
+		xx += dx; yy += dy; zz += dz;
+		if (Wmap[int(xx)][int(yy)] & Hmap[int(xx)][int(yy)] >= 1-zz)
+			if (!Smap[int(xx)][int(yy)] || (Smap[int(xx)][int(yy)] & (pow(xx-int(xx)-0.5,2)+pow(yy-int(yy)-0.5,2)+pow(zz-int(zz)-0.5,2) < 0.25)))
+				shade = shade*0.9;
+			if (zz<0 || shade<0.4)
+				break;
+	}
+}
+shade = sqrt(shade*(0.4 + 0.6)/(dl/2+0.1));
 ```
 
 </details>
