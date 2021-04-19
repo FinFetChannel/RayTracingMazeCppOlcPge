@@ -8,9 +8,9 @@ Simple ray tracing game in C++, originally developed in [Python](https://github.
 
 The basic approach is to trace rays of light in the reverse direction, starting from the camera and interacting with the environment, with three basic types of rays:
 
-* Vision rays - Initial ray that shoots from the camera and returns the coordinates where it has hit something
-* Shadow rays - Secondary rays that start where the vision ray has hit something and goes in the direction of the light
+* Vision rays - Initial rays that shoots from the camera and returns the coordinates where it has hit something
 * Reflection rays - Secondary rays cast when a vision ray hits a reflective surface, the new direction is the reflection of vision ray in relation to the normal vector of the surface, can have several bounces (reflections inside reflections)
+* Shadow rays - Secondary rays that start where the vision ray has hit something and goes in the direction of the light
 
 ### Maps
 
@@ -18,7 +18,7 @@ Maps are defined by grids, with different maps for different features: wall posi
 
 ### Game logic
 
-The player starts on one side of the map and has the objective of finding a blue floor patch on the opposite side of the map. At each level the size of map gets bigger, with a total of.
+The player starts on one side of the map and has the objective of finding a blue floor patch on the opposite side of the map. At each level the size of map gets bigger.
 
 ### Inputs
 
@@ -35,6 +35,7 @@ The code is a bit messy, following the basic structure:
 * Variables initialization
 * Level loop
    * Initialize level - OnUserCreate()
+   	* Generate random map
    * Game loop - OnUserUpdate()
       * Check inputs
       * Movement
@@ -301,46 +302,52 @@ for (int x = 0; x < ScreenWidth(); x++)
 
 </details>
 
-#### First case: Opaque walls with different heights
+#### First case: Regular walls with different heights and textures
 
 The simplest case is when a ray hits a prismatic wall, that is, the checks for spheres and reflective blocks have failed. Then a base color for the pixel is retrieved and the texture is checked.
 
 <details>
-  <summary>Imports, map and initialization:</summary>
+  <summary>Regular walls</summary>
 
 ```c++
+...
 if (Wmap[int(xx)][int(yy)]) // walls
 {
-	if (Hmap[int(xx)][int(yy)] >= 1-zz)
+	if (Hmap[int(xx)][int(yy)] >= 1-zz) // wall height check
 	{
-		if (Smap[int(xx)][int(yy)])// Spheres
-		else
+		if (Smap[int(xx)][int(yy)]) // Spheres check
+			"Spheres stuff here"
+		else // not spheres then
 		{
-			if (Rmap[int(xx)][int(yy)]) // wall reflections
-			else
+			if (Rmap[int(xx)][int(yy)]) // reflective wall?
+				"Reflective prismatic stuff here"
+			else // if it made so far then it is a non reflective prismatic wall
 			{
-				r = Rc[int(xx)][int(yy)]; g = Gc[int(xx)][int(yy)]; b = Bc[int(xx)][int(yy)]; // opaque surface
-				if (Tmap[int(xx)][int(yy)] != 0) // textured surface
+				r = Rc[int(xx)][int(yy)]; g = Gc[int(xx)][int(yy)]; b = Bc[int(xx)][int(yy)]; // retrieve block color
+				if (Tmap[int(xx)][int(yy)] != 0) // check if textured surface
 				{
-					if (yy - int(yy) < 0.05 || yy - int(yy) > 0.95)
-					sx = int((xx*3 - int(3*xx))*4);
-				else
-					sx = int((yy*3 - int(3*yy))*4);
-				if (xx - int(xx) < 0.95 & xx - int(xx) > 0.05 & yy - int(yy) < 0.95 & yy - int(yy) > 0.05)
-					sy = int((xx*5 - int(5*xx))*6);
-				else
-					sy = int((zz*5 - int(5*zz))*6);
-				if (Tmap[int(xx)][int(yy)] == 2) // random texture
-				{
-					r = r*tr[sy][sx]; g = g*tr[sy][sx]; b = b*tr[sy][sx];
-				}
-				else // brick texture
-				{
-					r = r*tb[sy][sx]; g = g*tb[sy][sx]; b = b*tb[sy][sx];
+					if (yy - int(yy) < 0.05 || yy - int(yy) > 0.95) // check side for texture mapping
+						sx = int((xx*3 - int(3*xx))*4);
+					else
+						sx = int((yy*3 - int(3*yy))*4);
+					if (xx - int(xx) < 0.95 & xx - int(xx) > 0.05 & yy - int(yy) < 0.95 & yy - int(yy) > 0.05) // check if top surface
+						sy = int((xx*5 - int(5*xx))*6);
+					else
+						sy = int((zz*5 - int(5*zz))*6);
+					if (Tmap[int(xx)][int(yy)] == 2) // if random texture
+					{
+						r = r*tr[sy][sx]; g = g*tr[sy][sx]; b = b*tr[sy][sx];
+					}
+					else // brick texture
+					{
+						r = r*tb[sy][sx]; g = g*tb[sy][sx]; b = b*tb[sy][sx];
 				}
 			}
-		break;
+		break; // break ray loop after sorting out pixel color
+		}
+	}
 }
+...
 ```
 
 </details>
