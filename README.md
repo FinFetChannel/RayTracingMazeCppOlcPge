@@ -506,7 +506,7 @@ After all that we can draw the pixel to the screen and go to the next one. When 
 
 ## Full code
 <details>
-  <summary>Imports, map and initialization:</summary>
+  <summary>Full code of the game</summary>
 
 ```c++
 #define OLC_PGE_APPLICATION
