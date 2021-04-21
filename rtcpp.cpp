@@ -13,7 +13,7 @@ float nx; float ny; float nz; float dot;
 double dx; double dy; double dz;
 double xx; double yy; double zz;
 float shade;int r; int g; int b; float rr; float rg; float rb;
-bool breaker;
+bool breaker; float timer = 0;
 
 float mousex; float mousey;
 const int screenwidth = 320;
@@ -29,88 +29,93 @@ float tb[6][4] = {{.95, .99, .97, .78}, // Brick texture
                 };
 
 
-void lodev() //https://lodev.org/cgtutor/raycasting.html
+void lodev() //adapted from https://lodev.org/cgtutor/raycasting.html
 {
-                float posX = xx;
-                float posY = yy;
-                float norm = sqrt(dx*dx + dy*dy + dz*dz);
-                double rayDirX = dx/norm;
-                double rayDirY = dy/norm;
-                double rayDirZ = dz/norm;
+    float posX = xx;
+    float posY = yy;
+    float norm = sqrt(dx*dx + dy*dy + dz*dz);
+    double rayDirX = dx/norm;
+    double rayDirY = dy/norm;
+    double rayDirZ = dz/norm;
 
-                      //which box of the map we're in
-                  int mapX = int(posX);
-                  int mapY = int(posY);
+    //which box of the map we're in
+    int mapX = int(posX);
+    int mapY = int(posY);
 
-                  //length of ray from current position to next x or y-side
-                  double sideDistX;
-                  double sideDistY;
+    //length of ray from current position to next x or y-side
+    double sideDistX;
+    double sideDistY;
+    double sideDistZ;
 
-                   //length of ray from one x or y-side to next x or y-side
-                  double deltaDistX = abs(1 / rayDirX);
-                  double deltaDistY = abs(1 / rayDirY);
-                  double deltaDistZ = abs(0.5 / rayDirZ);
-                  double dist;
+    //length of ray from one x or y-side to next x or y-side
+    double deltaDistX = abs(1 / rayDirX);
+    double deltaDistY = abs(1 / rayDirY);
+    double deltaDistZ = abs(1 / rayDirZ);
+    double dist;
 
-                  //what direction to step in x or y-direction (either +1 or -1)
-                  int stepX;
-                  int stepY;
+    //what direction to step in x or y-direction (either +1 or -1)
+    int stepX;
+    int stepY;
 
-                  int hit = 0; //was there a wall hit?
-                  int side; //was a NS or a EW wall hit?
-                        //calculate step and initial sideDist
-                  if (rayDirX < 0)
-                  {
-                    stepX = -1;
-                    sideDistX = (posX - mapX) * deltaDistX;
-                  }
-                  else
-                  {
-                    stepX = 1;
-                    sideDistX = (mapX + 1.0 - posX) * deltaDistX;
-                  }
-                  if (rayDirY < 0)
-                  {
-                    stepY = -1;
-                    sideDistY = (posY - mapY) * deltaDistY;
-                  }
-                  else
-                  {
-                    stepY = 1;
-                    sideDistY = (mapY + 1.0 - posY) * deltaDistY;
-                  }
-                        //perform DDA
-                  while (hit == 0)
-                  {
-                    //jump to next map square, OR in x-direction, OR in y-direction
-                    if (sideDistX < sideDistY)
-                    {
-                      sideDistX += deltaDistX;
-                      dist = sideDistX;
-                      mapX += stepX;
-                      side = 0;
-                    }
-                    else
-                    {
-                      sideDistY += deltaDistY;
-                      dist = sideDistY;
-                      mapY += stepY;
-                      side = 1;
-                    }
-                    //Check if ray has hit a wall
-                    if (Wmap[mapX][mapY] > 0) hit = 1;
-                  }
-                if (dist == sideDistY)
-                    dist = dist - deltaDistY;
-                else
-                    dist = dist - deltaDistX;
-                if (dist > deltaDistZ)
-                    dist = deltaDistZ;
-                //dist = dist + 0.01;
+    int hit = 0; //was there a wall hit?
+    int side; //was a NS or a EW wall hit?
+        //calculate step and initial sideDist
+    if (rayDirX < 0)
+    {
+    stepX = -1;
+    sideDistX = (posX - mapX) * deltaDistX;
+    }
+    else
+    {
+    stepX = 1;
+    sideDistX = (mapX + 1.0 - posX) * deltaDistX;
+    }
+    if (rayDirY < 0)
+    {
+    stepY = -1;
+    sideDistY = (posY - mapY) * deltaDistY;
+    }
+    else
+    {
+    stepY = 1;
+    sideDistY = (mapY + 1.0 - posY) * deltaDistY;
+    }
+    if (rayDirZ < 0)
+    sideDistZ = zz*deltaDistZ;
+    else
+    sideDistZ = (1-zz)*deltaDistZ;
+        //perform DDA
+    while (hit == 0)
+    {
+    //jump to next map square, OR in x-direction, OR in y-direction
+    if (sideDistX < sideDistY)
+    {
+      sideDistX += deltaDistX;
+      dist = sideDistX;
+      mapX += stepX;
+      side = 0;
+    }
+    else
+    {
+      sideDistY += deltaDistY;
+      dist = sideDistY;
+      mapY += stepY;
+      side = 1;
+    }
+    //Check if ray has hit a wall
+    if (Wmap[mapX][mapY] > 0) hit = 1;
+    }
+    if (dist == sideDistY)
+        dist = dist - deltaDistY;
+    else
+        dist = dist - deltaDistX;
+    if (dist > sideDistZ)
+        dist = sideDistZ;
+    //dist = dist + 0.01;
 
-                xx = xx + rayDirX*dist;
-                yy = yy + rayDirY*dist;
-                zz = zz + rayDirZ*dist;
+    xx = xx + rayDirX*dist;
+    yy = yy + rayDirY*dist;
+    zz = zz + rayDirZ*dist;
 }
 
 void texture_stuff()
@@ -146,7 +151,7 @@ void sphere_stuff()
                 r = 100; g = 100; b = 100;
                 breaker = true;
             }
-            if (abs(Hmap[int(xx)][int(yy)] - 1+zz) <= abs(dz)) // horizontal surface
+            if (abs(Hmap[int(xx)][int(yy)] - zz) <= abs(dz)) // horizontal surface
                 dz = -dz;
             else{
                 nx = (xx-int(xx)-0.5)/0.5; ny = (yy-int(yy)-0.5)/0.5; nz =(zz-0.5)/0.5;
@@ -176,7 +181,7 @@ void reflection_stuff()
         r = 0; g = 0; b = 0;
         breaker = true;
     }
-    if (abs(Hmap[int(xx)][int(yy)] - 1+zz) <= abs(dz)) // horizontal surface
+    if (abs(Hmap[int(xx)][int(yy)] - zz) <= abs(dz)) // horizontal surface
         dz = -dz;
     else{
         if (Hmap[int(xx+dx)][int(yy-dy)] == Hmap[int(xx)][int(yy)])
@@ -189,21 +194,25 @@ void reflection_stuff()
 
 void shading()
 {
-    float dl = sqrt(pow ((xx-lx),2) + pow((yy-ly),2) + pow((0-zz),2) );
+    float dl = sqrt(pow ((xx-lx),2) + pow((yy-ly),2) + pow((1-zz),2) );
     if (shade < 1){ // tinted mirrors application
         r = sqrt(rr * r); rg = sqrt(rg * g); rb = sqrt(rb * b);
     }
 
-    if (zz>0) // shade ray for everything thats under the ceiling level
+    if (zz<1) // shade ray for everything thats under the ceiling level
         {
-            dx = 0.04*(lx-xx)/dl; dy = 0.04*(ly-yy)/dl; dz = 0.04*(0-zz)/dl; // light direction
+            dx = 0.04*(lx-xx)/dl; dy = 0.04*(ly-yy)/dl; dz = 0.04*(1-zz)/dl; // light direction
             while(1)
             {
+                if (Wmap[int(xx)][int(yy)]==0)
+                    {
+                        lodev(); xx -= dx/2; yy -= dy/2; zz -= dz/2;
+                    }
                 xx += dx; yy += dy; zz += dz;
-                if (Wmap[int(xx)][int(yy)] & Hmap[int(xx)][int(yy)] >= 1-zz)
+                if (Wmap[int(xx)][int(yy)] & Hmap[int(xx)][int(yy)] >= zz)
                     if (!Smap[int(xx)][int(yy)] || (Smap[int(xx)][int(yy)] & (pow(xx-int(xx)-0.5,2)+pow(yy-int(yy)-0.5,2)+pow(zz-int(zz)-0.5,2) < 0.25)))
                         shade = shade*0.9;
-                if (zz<0 || shade<0.4)
+                if (zz > 1 || shade<0.4)
                     break;
             }
         }
@@ -272,52 +281,32 @@ public:
 	bool OnUserUpdate(float fElapsedTime) override
 	{
 	    // user inputs
-        if (int(mousex) != float(GetMouseX()))
-            playerH += 12*(float(GetMouseX()) - mousex)/ScreenWidth();
-
-        if (int(mousey) != float(GetMouseY()))
-            playerV += 3*(float(GetMouseY()) - mousey)/ScreenHeight();
-
-        if (playerV > 0.5)playerV = 0.5;
-        if (playerV < -0.5)playerV = -0.5;
-
+        if (int(mousex) != float(GetMouseX())) playerH += 12*(float(GetMouseX()) - mousex)/ScreenWidth();
+        if (int(mousey) != float(GetMouseY())) playerV += 3*(float(GetMouseY()) - mousey)/ScreenHeight();
+        if (playerV > 0.5)playerV = 0.5; if (playerV < -0.5)playerV = -0.5;
         mousex = float(GetMouseX()); mousey = float(GetMouseY());
 
-        if (GetKey(olc::Key::Q).bHeld) // turn left
-            playerH += -1* fElapsedTime;
-
-        if (GetKey(olc::Key::E).bHeld) // turn right
-            playerH += 1* fElapsedTime;
-
-        if (GetKey(olc::Key::R).bHeld) // turn up
-            playerV += 1* fElapsedTime;
-
-        if (GetKey(olc::Key::F).bHeld) // turn down
-            playerV += -1* fElapsedTime;
-
-        if (GetKey(olc::Key::ESCAPE).bHeld) // quit
-            return 0;
-
+        if (GetKey(olc::Key::Q).bHeld) playerH += -1* fElapsedTime; // turn left
+        if (GetKey(olc::Key::E).bHeld) playerH += 1* fElapsedTime; // turn right
+        if (GetKey(olc::Key::R).bHeld) playerV += 1* fElapsedTime; // turn up
+        if (GetKey(olc::Key::F).bHeld) playerV += -1* fElapsedTime; // turn down
+        if (GetKey(olc::Key::ESCAPE).bHeld) return 0; // quit
         float px = playerx; float py = playery;
-        if (GetKey(olc::Key::W).bHeld) // Forwards
-        {
-            px += cos(playerH)*2.f * fElapsedTime; py += sin(playerH)*2.f * fElapsedTime;
-        }
-        if (GetKey(olc::Key::S).bHeld) // Backwards
-        {
-            px += -cos(playerH)*2.f * fElapsedTime; py += -sin(playerH)*2.f * fElapsedTime;
-        }
-        if (GetKey(olc::Key::A).bHeld) // Leftwards
-        {
-            px += sin(playerH)*2.f * fElapsedTime; py += -cos(playerH)*2.f * fElapsedTime;
-        }
-        if (GetKey(olc::Key::D).bHeld) // Rightwards
-        {
-            px += -sin(playerH)*2.f * fElapsedTime; py += cos(playerH)*2.f * fElapsedTime;
-        }
+
+        if (GetKey(olc::Key::W).bHeld){ // Forwards
+            px += cos(playerH)*2.f * fElapsedTime; py += sin(playerH)*2.f * fElapsedTime;}
+        if (GetKey(olc::Key::S).bHeld){ // Backwards
+            px += -cos(playerH)*2.f * fElapsedTime; py += -sin(playerH)*2.f * fElapsedTime;}
+        if (GetKey(olc::Key::A).bHeld){ // Leftwards
+            px += sin(playerH)*2.f * fElapsedTime; py += -cos(playerH)*2.f * fElapsedTime;}
+        if (GetKey(olc::Key::D).bHeld){ // Rightwards
+            px += -sin(playerH)*2.f * fElapsedTime; py += cos(playerH)*2.f * fElapsedTime;}
         if (!Wmap[int(px)][int(py)]){ // only moves if not wall
-            playerx = px; playery = py;
-        }
+            playerx = px; playery = py;}
+	    
+        timer += fElapsedTime/5; // funky lights
+        lx = Wsize/2 + sin(timer);
+        ly = Wsize/2 + cos(timer);
 
         // draw pixel after pixel
 		for (int x = 0; x < ScreenWidth(); x++)
@@ -330,29 +319,30 @@ public:
                 float Vangle = playerV + y*0.017453/mod - 0.393699;
                 dx = cos(Hangle)*0.04/mod;
                 dy = sin(Hangle)*0.04/mod;
-                dz = sin(Vangle)*0.04/mod;
+                dz = -sin(Vangle)*0.04/mod;
                 shade = 1;
                 r = 255; g = 255; b = 255;
-                lodev(); xx -= dx/2; yy -= dy/2; zz -= dz/2;
-                breaker = false;
 
+                breaker = false;
                 while(1)
                 {
+                    if (Wmap[int(xx)][int(yy)]==0)
+                    {
+                        lodev(); xx -= dx/2; yy -= dy/2; zz -= dz/2;
+                    }
                     xx += dx; yy += dy; zz += dz;
 
-                    if (zz < 0) // ceiling
+                    if (zz > 1) // ceiling
                     {
                         if (pow((xx-lx),2) + pow((yy-ly),2) < 0.1){
-                            r = 255; g = 255; b = 255;
-                            break;
+                            r = 255; g = 255; b = 255; break;
                             }
                         else{
                             float shade2 = 0.25 * (abs(sin(yy+ly)+ sin(xx+lx))+2);
-                            r = 255*shade2; g = 255*shade2; b = 255;
-                            break;
+                            r = 255*shade2; g = 255*shade2; b = 255; break;
                         }
                     }
-                    if (zz > 1) // floor
+                    if (zz < 0) // floor
                     {
                         if (int(2*xx)%2 == int(2*yy)%2){
                             if (int(xx) == exitx & int(yy) == exity){
@@ -366,7 +356,7 @@ public:
                     }
                     if (Wmap[int(xx)][int(yy)]) // walls
                     {
-                        if (Hmap[int(xx)][int(yy)] >= 1-zz)
+                        if (Hmap[int(xx)][int(yy)] >= zz)
                         {
                             if (Smap[int(xx)][int(yy)])// Spheres
                                 sphere_stuff();
