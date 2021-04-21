@@ -114,80 +114,103 @@ void lodev() //https://lodev.org/cgtutor/raycasting.html
 }
 
 void texture_stuff()
-                                    {
-                                        if (yy - int(yy) < 0.05 || yy - int(yy) > 0.95)
-                                            sx = int((xx*3 - int(3*xx))*4);
-                                        else
-                                            sx = int((yy*3 - int(3*yy))*4);
-                                        if (xx - int(xx) < 0.95 & xx - int(xx) > 0.05 & yy - int(yy) < 0.95 & yy - int(yy) > 0.05)
-                                            sy = int((xx*5 - int(5*xx))*6);
-                                        else
-                                            sy = int((zz*5 - int(5*zz))*6);
-                                        if (Tmap[int(xx)][int(yy)] == 2){
-                                            r = r*tr[sy][sx]; g = g*tr[sy][sx]; b = b*tr[sy][sx];
-                                        }
-                                        else{
-                                            r = r*tb[sy][sx]; g = g*tb[sy][sx]; b = b*tb[sy][sx];
-                                        }
-                                    }
+{
+    if (yy - int(yy) < 0.05 || yy - int(yy) > 0.95)
+        sx = int((xx*3 - int(3*xx))*4);
+    else
+        sx = int((yy*3 - int(3*yy))*4);
+    if (xx - int(xx) < 0.95 & xx - int(xx) > 0.05 & yy - int(yy) < 0.95 & yy - int(yy) > 0.05)
+        sy = int((xx*5 - int(5*xx))*6);
+    else
+        sy = int((zz*5 - int(5*zz))*6);
+    if (Tmap[int(xx)][int(yy)] == 2){
+        r = r*tr[sy][sx]; g = g*tr[sy][sx]; b = b*tr[sy][sx];
+    }
+    else{
+        r = r*tb[sy][sx]; g = g*tb[sy][sx]; b = b*tb[sy][sx];
+    }
+}
 
 void sphere_stuff()
 {
-                                if (pow(xx-int(xx)-0.5,2)+pow(yy-int(yy)-0.5,2)+pow(zz-int(zz)-0.5,2) < 0.25)
-                                {
-                                    if (Rmap[int(xx)][int(yy)]) // spherical mirrors
-                                    {
-                                        if (shade == 1){
-                                            rr = Rc[int(xx)][int(yy)]; rg = Gc[int(xx)][int(yy)]; rb = Bc[int(xx)][int(yy)];} // tinted mirrors
-                                        else{
-                                            rr = 0.5*(rr + Rc[int(xx)][int(yy)]); rg = 0.5*(rg + Gc[int(xx)][int(yy)]); rb = 0.5*(rb + Bc[int(xx)][int(yy)]);}
-                                        shade = shade*0.7;
-                                        if (shade < 0.1){
-                                            r = 100; g = 100; b = 100;
-                                            breaker = true;
-                                        }
-                                        if (abs(Hmap[int(xx)][int(yy)] - 1+zz) <= abs(dz)) // horizontal surface
-                                            dz = -dz;
-                                        else{
-                                            nx = (xx-int(xx)-0.5)/0.5; ny = (yy-int(yy)-0.5)/0.5; nz =(zz-0.5)/0.5;
-                                            dot = 2*(dx*nx + dy*ny + dz*nz); // dR = -dI + 2*n*(dI�n)
-                                            dx = (dx - nx*dot); dy = (dy - ny*dot); dz = (dz - nz*dot)*1.2;
-                                        }
-                                        xx += dx; yy += dy; zz += dz;
-                                    }
-                                    else
-                                    {
-                                        r = Rc[int(xx)][int(yy)]; g = Gc[int(xx)][int(yy)]; b = Bc[int(xx)][int(yy)];
-                                        if (Tmap[int(xx)][int(yy)] != 0) // textures on spheres (a bit wonky)
-                                            texture_stuff();
-                                        breaker = true;
-                                    }
-                                }
-                            }
+    if (pow(xx-int(xx)-0.5,2)+pow(yy-int(yy)-0.5,2)+pow(zz-int(zz)-0.5,2) < 0.25)
+    {
+        if (Rmap[int(xx)][int(yy)]) // spherical mirrors
+        {
+            if (shade == 1){
+                rr = Rc[int(xx)][int(yy)]; rg = Gc[int(xx)][int(yy)]; rb = Bc[int(xx)][int(yy)];} // tinted mirrors
+            else{
+                rr = 0.5*(rr + Rc[int(xx)][int(yy)]); rg = 0.5*(rg + Gc[int(xx)][int(yy)]); rb = 0.5*(rb + Bc[int(xx)][int(yy)]);}
+            shade = shade*0.7;
+            if (shade < 0.1){
+                r = 100; g = 100; b = 100;
+                breaker = true;
+            }
+            if (abs(Hmap[int(xx)][int(yy)] - 1+zz) <= abs(dz)) // horizontal surface
+                dz = -dz;
+            else{
+                nx = (xx-int(xx)-0.5)/0.5; ny = (yy-int(yy)-0.5)/0.5; nz =(zz-0.5)/0.5;
+                dot = 2*(dx*nx + dy*ny + dz*nz); // dR = -dI + 2*n*(dI�n)
+                dx = (dx - nx*dot); dy = (dy - ny*dot); dz = (dz - nz*dot)*1.2;
+            }
+            xx += dx; yy += dy; zz += dz;
+        }
+        else
+        {
+            r = Rc[int(xx)][int(yy)]; g = Gc[int(xx)][int(yy)]; b = Bc[int(xx)][int(yy)];
+            if (Tmap[int(xx)][int(yy)] != 0) // textures on spheres (a bit wonky)
+                texture_stuff();
+            breaker = true;
+        }
+    }
+}
 
 void reflection_stuff()
-                                {
-                                    if (shade == 1){
-                                        rr = Rc[int(xx)][int(yy)]; rg = Gc[int(xx)][int(yy)]; rb = Bc[int(xx)][int(yy)];} // tinted mirrors
-                                    else{
-                                        rr = 0.5*(rr + Rc[int(xx)][int(yy)]); rg = 0.5*(rg + Gc[int(xx)][int(yy)]); rb = 0.5*(rb + Bc[int(xx)][int(yy)]);}
-                                    shade = shade*0.7;
-                                    if (shade < 0.1){
-                                        r = 0; g = 0; b = 0;
-                                        breaker = true;
-                                    }
-                                    if (abs(Hmap[int(xx)][int(yy)] - 1+zz) <= abs(dz)) // horizontal surface
-                                        dz = -dz;
-                                    else{
-                                        if (Hmap[int(xx+dx)][int(yy-dy)] == Hmap[int(xx)][int(yy)])
-                                            dx = -dx; // y surface
-                                        else
-                                            dy = -dy; // x surface
-                                    }
-                                    xx += dx; yy += dy; zz += dz;
-                                }
+{
+    if (shade == 1){
+        rr = Rc[int(xx)][int(yy)]; rg = Gc[int(xx)][int(yy)]; rb = Bc[int(xx)][int(yy)];} // tinted mirrors
+    else{
+        rr = 0.5*(rr + Rc[int(xx)][int(yy)]); rg = 0.5*(rg + Gc[int(xx)][int(yy)]); rb = 0.5*(rb + Bc[int(xx)][int(yy)]);}
+    shade = shade*0.7;
+    if (shade < 0.1){
+        r = 0; g = 0; b = 0;
+        breaker = true;
+    }
+    if (abs(Hmap[int(xx)][int(yy)] - 1+zz) <= abs(dz)) // horizontal surface
+        dz = -dz;
+    else{
+        if (Hmap[int(xx+dx)][int(yy-dy)] == Hmap[int(xx)][int(yy)])
+            dx = -dx; // y surface
+        else
+            dy = -dy; // x surface
+    }
+    xx += dx; yy += dy; zz += dz;
+}
 
+void shading()
+{
+    float dl = sqrt(pow ((xx-lx),2) + pow((yy-ly),2) + pow((0-zz),2) );
+    if (shade < 1){ // tinted mirrors application
+        r = sqrt(rr * r); rg = sqrt(rg * g); rb = sqrt(rb * b);
+    }
 
+    if (zz>0) // shade ray for everything thats under the ceiling level
+        {
+            dx = 0.04*(lx-xx)/dl; dy = 0.04*(ly-yy)/dl; dz = 0.04*(0-zz)/dl; // light direction
+            while(1)
+            {
+                xx += dx; yy += dy; zz += dz;
+                if (Wmap[int(xx)][int(yy)] & Hmap[int(xx)][int(yy)] >= 1-zz)
+                    if (!Smap[int(xx)][int(yy)] || (Smap[int(xx)][int(yy)] & (pow(xx-int(xx)-0.5,2)+pow(yy-int(yy)-0.5,2)+pow(zz-int(zz)-0.5,2) < 0.25)))
+                        shade = shade*0.9;
+                if (zz<0 || shade<0.4)
+                    break;
+            }
+        }
+    shade = sqrt(shade*(0.4 + 0.6)/(dl/2+0.1));
+    if (shade > 1)
+        shade  = 1;
+}
 class Example : public olc::PixelGameEngine
 {
 public:
@@ -310,8 +333,7 @@ public:
                 dz = sin(Vangle)*0.04/mod;
                 shade = 1;
                 r = 255; g = 255; b = 255;
-                lodev();
-                xx -= dx/2; yy -= dy/2; zz -= dz/2;
+                lodev(); xx -= dx/2; yy -= dy/2; zz -= dz/2;
                 breaker = false;
 
                 while(1)
@@ -367,34 +389,8 @@ public:
                         break;
                 }
 
-                float dl = sqrt(pow ((xx-lx),2) + pow((yy-ly),2) + pow((0-zz),2) );
-                if (shade < 1){ // tinted mirrors application
-                    //r = 0.5*(rr + r); rg = 0.5*(rg + g); rb = 0.5*(rb + b); // colorful black tiles
-                    r = sqrt(rr * r); rg = sqrt(rg * g); rb = sqrt(rb * b);
-                }
-                if (zz>0) // shade ray for everything thats under the ceiling level
-                {
-                    dx = 0.04*(lx-xx)/dl; dy = 0.04*(ly-yy)/dl; dz = 0.04*(0-zz)/dl; // light direction
-                    //lodev();xx -= dx/2; yy -= dy/2; zz -= dz/2;
-                    while(1)
-                    {
-                        xx += dx; yy += dy; zz += dz;
-                        if (Wmap[int(xx)][int(yy)] & Hmap[int(xx)][int(yy)] >= 1-zz)
-                            if (!Smap[int(xx)][int(yy)] || (Smap[int(xx)][int(yy)] & (pow(xx-int(xx)-0.5,2)+pow(yy-int(yy)-0.5,2)+pow(zz-int(zz)-0.5,2) < 0.25)))
-                                shade = shade*0.9;
-                        if (zz<0 || shade<0.4)
-                            break;
-                    }
-                }
-                shade = sqrt(shade*(0.4 + 0.6)/(dl/2+0.1));
-                //shade = shade* (1+0.2/sqrt(pow(playerx-xx,2)+pow(playery-yy,2)+pow(0.5-zz,2)));
-                if (shade > 1)
-                    shade  = 1;
+                shading();
 
-//                if (zz > 0 || zz < 1)
-//                {
-//                    r = Rc[int(xx)][int(yy)]; g = Gc[int(xx)][int(yy)]; b = Bc[int(xx)][int(yy)]; // regular surface
-//                }
                 Draw(x, y, olc::Pixel(int(shade*r),int(shade*g), int(shade*b)));
             }
         if (int(playerx) == exitx & int(playery) == exity)
