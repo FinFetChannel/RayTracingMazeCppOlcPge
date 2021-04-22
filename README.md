@@ -12,7 +12,7 @@ The basic approach is to trace rays of light in the reverse direction, starting 
 
 * Vision rays - Initial rays that shoots from the camera and returns the coordinates where it has hit something
 * Reflection rays - Secondary rays cast when a vision ray hits a reflective surface, the new direction is the reflection of vision ray in relation to the normal vector of the surface, can have several bounces (reflections inside reflections)
-* Shadow rays - Secondary rays that start where the vision ray has hit something and goes in the direction of the light
+* Shadow rays - Secondary rays that start where the vision ray has hit something and go in the direction of the light
 
 ### Maps
 
