@@ -568,7 +568,7 @@ void lodev() //adapted from https://lodev.org/cgtutor/raycasting.html
     zz = zz + rayDirZ*dist;
 }
 ```
-To use it, we simply inject this code in the ray loop and in the shadind loop. This results in a 2 to 3 times increase in performance, not too shabby.
+To use it, we simply inject this code in the ray loop and in the shading loop. This results in a 2 to 3 times increase in performance, not too shabby.
 
 <details>
   <summary>Call for DDA</summary>
