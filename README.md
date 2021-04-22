@@ -473,7 +473,109 @@ After all that we can draw the pixel to the screen and go to the next one. When 
 
 ## Optimization
 
-The naive approach with small increments is very inefficient. A much more compelling approach is to take advantage of the grid structure of the map, with a DDA algorithm, as presented by [Lode Vandevenne](https://lodev.org/cgtutor/raycasting.html)
+The naive approach with small increments is very inefficient. A much more compelling approach is to take advantage of the grid structure of the map, with a DDA algorithm (Digital differential analyzer), as presented by [Lode Vandevenne](https://lodev.org/cgtutor/raycasting.html). Ideally, we would create a grid in the z direction for full optimization with a true voxel space, I'm not doing that. I will simply call the DDA everytime the ray is at an empty cell to find the next non empty one. 
 
+<details>
+  <summary>DDA</summary>
 
+```c++
+void lodev() //adapted from https://lodev.org/cgtutor/raycasting.html
+{
+    float posX = xx;
+    float posY = yy;
+    float norm = sqrt(dx*dx + dy*dy + dz*dz);
+    double rayDirX = dx/norm;
+    double rayDirY = dy/norm;
+    double rayDirZ = dz/norm;
 
+    //which box of the map we're in
+    int mapX = int(posX);
+    int mapY = int(posY);
+
+    //length of ray from current position to next x or y-side
+    double sideDistX;
+    double sideDistY;
+    double sideDistZ;
+
+    //length of ray from one x or y-side to next x or y-side
+    double deltaDistX = abs(1 / rayDirX);
+    double deltaDistY = abs(1 / rayDirY);
+    double deltaDistZ = abs(1 / rayDirZ);
+    double dist;
+
+    //what direction to step in x or y-direction (either +1 or -1)
+    int stepX;
+    int stepY;
+
+    int hit = 0; //was there a wall hit?
+    int side; //was a NS or a EW wall hit?
+        //calculate step and initial sideDist
+    if (rayDirX < 0)
+    {
+    stepX = -1;
+    sideDistX = (posX - mapX) * deltaDistX;
+    }
+    else
+    {
+    stepX = 1;
+    sideDistX = (mapX + 1.0 - posX) * deltaDistX;
+    }
+    if (rayDirY < 0)
+    {
+    stepY = -1;
+    sideDistY = (posY - mapY) * deltaDistY;
+    }
+    else
+    {
+    stepY = 1;
+    sideDistY = (mapY + 1.0 - posY) * deltaDistY;
+    }
+    if (rayDirZ < 0)
+    sideDistZ = zz*deltaDistZ;
+    else
+    sideDistZ = (1-zz)*deltaDistZ;
+    //perform DDA
+    while (hit == 0)
+    {
+    //jump to next map square, OR in x-direction, OR in y-direction
+    if (sideDistX < sideDistY)
+    {
+      sideDistX += deltaDistX;
+      dist = sideDistX;
+      mapX += stepX;
+      side = 0;
+    }
+    else
+    {
+      sideDistY += deltaDistY;
+      dist = sideDistY;
+      mapY += stepY;
+      side = 1;
+    }
+    //Check if ray has hit a wall
+    if (Wmap[mapX][mapY] > 0) hit = 1;
+    }
+    if (dist == sideDistY)
+        dist = dist - deltaDistY;
+    else
+        dist = dist - deltaDistX;
+    if (dist > sideDistZ)
+        dist = sideDistZ;
+    //dist = dist + 0.01;
+
+    xx = xx + rayDirX*dist;
+    yy = yy + rayDirY*dist;
+    zz = zz + rayDirZ*dist;
+}
+```
+To use it, we simply inject this code in the ray loop and in the shadind loop. This results in a 2 to 3 times increase in performance, not too shabby.
+
+<details>
+  <summary>Call for DDA</summary>
+
+```c++
+if (Wmap[int(xx)][int(yy)]==0)
+{
+	lodev(); xx -= dx/2; yy -= dy/2; zz -= dz/2;
+}
+```
