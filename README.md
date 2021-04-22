@@ -2,6 +2,8 @@
 
 Simple ray tracing game in C++, originally developed in [Python](https://github.com/FinFetChannel/pytracingMaze), which in turn was based on my [ray casting project](https://github.com/FinFetChannel/RayCastingPythonMaze). As you may have guessed, things started to get a bit heavy for Python and my poor optimization skills, still, developing the proof of concept with Python was worth it as i don't have much experience in C++ (as you can clearly see by just looking at the code).
 
+![Screenshot](caps.png)
+
 ## Intro
 
 ### Rays
