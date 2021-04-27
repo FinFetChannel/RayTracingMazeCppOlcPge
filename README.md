@@ -570,6 +570,8 @@ void lodev() //adapted from https://lodev.org/cgtutor/raycasting.html
     zz = zz + rayDirZ*dist;
 }
 ```
+</details>
+
 To use it, we simply inject this code in the ray loop and in the shading loop. This results in a 2 to 3 times increase in performance, not too shabby.
 
 <details>
@@ -581,5 +583,6 @@ if (Wmap[int(xx)][int(yy)]==0)
 	lodev(); xx -= dx/2; yy -= dy/2; zz -= dz/2;
 }
 ```
+</details>
 
 <img src="https://avatars0.githubusercontent.com/u/76776190?s=460&u=8f3943b46a0f1060a462d8a2922319edd9cd241c&v=4" width="100" height="100">
